@@ -1,0 +1,13 @@
+---
+
+# Role Timezone
+timezone: /usr/share/zoneinfo/Europe/Amsterdam
+
+# Role basickpcgks
+amazon_packages: httpd
+
+redhat_java_version: '1.8.0'
+java_patch: ''
+
+hostname: 'web01'
+env: 'test'

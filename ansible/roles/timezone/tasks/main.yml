@@ -1,0 +1,10 @@
+---
+- name: Check current timezone
+  shell: ls -l /etc/localtime | awk '{print $11}'
+  register: current_timezone
+  changed_when: False
+  check_mode: no  
+
+- name: Set timezone
+  file: src={{ timezone }}  dest=/etc/localtime state=link force=yes
+  when: current_timezone.stdout != timezone

@@ -1,0 +1,17 @@
+
+export NORMAL="\[\e[0m\]"
+
+# user@host: ~/directory $
+{% if env == 'pro' %}
+export RED="\[\e[1;31m\]"
+PROMPT="\u@$RED\h$NORMAL: \W "
+{% else %}
+export GREEN="\[\e[1;32m\]"
+PROMPT="\u@$GREEN\h$NORMAL: \W "
+{% endif %}
+
+if [[ $UID == 0 ]] ; then
+  export PS1="$PROMPT # "
+else
+  export PS1="$PROMPT $ "
+fi
