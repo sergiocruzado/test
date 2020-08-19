@@ -140,7 +140,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} Public Routes
+          Value: !Sub ${EnvironmentName} Public
 
   DefaultPublicRoute:
     Type: AWS::EC2::Route
@@ -186,7 +186,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} Private Routes
+          Value: !Sub ${EnvironmentName} Private
 
   DefaultPrivateRoute:
     Type: AWS::EC2::Route
@@ -212,7 +212,80 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnet3
-    
+ 
+  PublicSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for public subnet
+      GroupName: public
+      VpcId: !Ref  VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0          
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+      Tags: 
+        - Key: Name
+          Value: public
+
+  PrivateSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security group for private subnet
+      GroupName: private      
+      VpcId: !Ref  VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: !GetAtt VPC.CidrBlock
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 0
+          CidrIp: !GetAtt VPC.CidrBlock
+      Tags: 
+        - Key: Name
+          Value: private
+
+  PublicEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-07d9160fa81ccffb5
+      InstanceType: t2.micro
+      KeyName: sergio
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet: 
+            - Ref: "PublicSG"
+          SubnetId: 
+            Ref: "PublicSubnet1"
+      Tags: 
+        - Key: Name
+          Value: public
+
+  PrivateEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-07d9160fa81ccffb5
+      InstanceType: t2.micro
+      KeyName: sergio
+      SecurityGroupIds: [!Ref  PrivateSG]
+      SubnetId: !Ref PrivateSubnet1
+      Tags: 
+        - Key: Name
+          Value: private      
+ 
 Outputs:
   VPC:
     Description: A reference to the created VPC
